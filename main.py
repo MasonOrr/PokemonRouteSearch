@@ -10,7 +10,7 @@ Loop:
 	Ask user which mode they would like to use
 		Check if valid answer
 		Set current game mode to answer
-    Ask user for pokemon/route
+    	Ask user for pokemon/route
 		Use an api wrapper to validate response from wikipedia
         retrieve data if valid
         Format data
