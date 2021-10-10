@@ -24,6 +24,7 @@ class ResponseHandler:
 
     def validate_response(self):
         """Checks if user input is in valid_responses attr and informs user of valid options if not. Also quits"""
+
         if self.response in self.valid_responses:
             self.valid_search = True
             return
@@ -49,6 +50,7 @@ class SearchType(ResponseHandler):
 
     def get_search_type(self):
         """Returns search type class based on user input. Added exception in case of bad validation"""
+
         if self.response == 'rs' or 'route search':
             return RouteSearch()
         elif self.response == 'ps' or 'pokemon search':
