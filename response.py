@@ -24,6 +24,7 @@ class ResponseHandler:
 
     def validate_response(self):
         """Checks if user input is in valid_responses attr and informs user of valid options if not. Also quits"""
+
         if self.response in self.valid_responses:
             self.valid_search = True
             return
@@ -49,6 +50,7 @@ class SearchType(ResponseHandler):
 
     def get_search_type(self):
         """Returns search type class based on user input. Added exception in case of bad validation"""
+
         if self.response == 'rs' or 'route search':
             return RouteSearch()
         elif self.response == 'ps' or 'pokemon search':
@@ -60,8 +62,32 @@ class SearchType(ResponseHandler):
 class PokemonSearch(ResponseHandler):
     def __init__(self):
         super().__init__()
+        # input prompt
+        # help text
+        # optional attribute for specific game/generation/console, or to include non-main series games
+    # func validate input via api
+        # prompt again if failed
+    # alter data to be printed
 
 
 class RouteSearch(ResponseHandler):
     def __init__(self):
         super().__init__()
+        # input prompt
+        # help text
+        # optional attribute for specific game/generation/console or to include non-main series games
+    # func validate input via api
+        # prompt again if failed
+    # alter data to be printed
+
+
+class SearchAgain(ResponseHandler):
+    def __init__(self):
+        super().__init__()
+        # input prompt
+        # valid responses
+        # help text
+    # if same search type recall search_type object
+    # elif search again in other type
+        # search_type object reassigned to other search type
+    # quit/help options
