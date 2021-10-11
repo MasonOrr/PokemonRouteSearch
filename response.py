@@ -62,8 +62,32 @@ class SearchType(ResponseHandler):
 class PokemonSearch(ResponseHandler):
     def __init__(self):
         super().__init__()
+        # input prompt
+        # help text
+        # optional attribute for specific game/generation/console, or to include non-main series games
+    # func validate input via api
+        # prompt again if failed
+    # alter data to be printed
 
 
 class RouteSearch(ResponseHandler):
     def __init__(self):
         super().__init__()
+        # input prompt
+        # help text
+        # optional attribute for specific game/generation/console or to include non-main series games
+    # func validate input via api
+        # prompt again if failed
+    # alter data to be printed
+
+
+class SearchAgain(ResponseHandler):
+    def __init__(self):
+        super().__init__()
+        # input prompt
+        # valid responses
+        # help text
+    # if same search type recall search_type object
+    # elif search again in other type
+        # search_type object reassigned to other search type
+    # quit/help options
