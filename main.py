@@ -18,7 +18,7 @@ def attain_search_type():
         search_type_handler.get_response()
         search_type_handler.validate_response()
 
-    search_type = search_type_handler.get_search_type()
+    search_type = search_type_handler.set_search_type()
 
 
 if __name__ == '__main__':
