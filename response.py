@@ -54,15 +54,16 @@ class SearchType(ResponseHandler):
     def handle_response(self):
         """Returns search type class based on user input. Added exception in case of bad validation"""
 
-        if self.response == 'rs' or 'route search':
-            return RouteSearch()
-        elif self.response == 'ps' or 'pokemon search':
+        if self.response in ['ps', 'pokemon search']:
             return PokemonSearch()
+        elif self.response in ['rs', 'route search']:
+            return RouteSearch()
         else:
             raise Exception('Unexpected search type in self.response')
 
     def search_type(self):
         """Runs class's methods together in one function call"""
+
         self.get_response()
         while not self.valid_search:
             self.validate_response()
@@ -129,14 +130,14 @@ class SearchAgain(ResponseHandler):
         if self.response == 'no':
             exit()
         elif self.response == 'yes' and self.input_search == 'RouteSearch': # TODO: add self.call_all_route_search_methods
-            #Change self object to new object
+            return  # Change self object to new object
         elif self.response == 'yes' and self.input_search == 'PokemonSearch': # TODO: add self.call_all_pokemon_search_methods
-            #Change self object to new object
+            return  # Change self object to new object
         elif self.response == 'change mode':
             if self.input_search == 'RouteSearch':
-                #Change self object to new object
+                return  # Change self object to new object
             elif self.input_search == 'PokemonSearch':
-                #Change self object to new object
+                return  # Change self object to new object
             else:
                 raise Exception('Unexpected value for input_search.')
 
