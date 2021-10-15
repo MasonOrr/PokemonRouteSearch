@@ -37,6 +37,17 @@ class ResponseHandler:
             self.get_response()
         return
 
+    def handle_response(self):
+        raise Exception('ResponseHandler.handle_response() should be overwritten in subclasses but was instead called')
+
+    def process_query(self):
+        """Runs class's methods together in one function call"""
+
+        self.get_response()
+        while not self.valid_search:
+            self.validate_response()
+        return self.handle_response()
+
 
 class SearchType(ResponseHandler):
     def __init__(self):
@@ -61,14 +72,6 @@ class SearchType(ResponseHandler):
         else:
             raise Exception('Unexpected search type in self.response')
 
-    def search_type(self):
-        """Runs class's methods together in one function call"""
-
-        self.get_response()
-        while not self.valid_search:
-            self.validate_response()
-        return self.handle_response()
-
 
 class PokemonSearch(ResponseHandler):
     def __init__(self):
@@ -87,13 +90,19 @@ class PokemonSearch(ResponseHandler):
         self.filter_by_console = ''
 
     def validate_response(self):
+        # check api if valid response
+            # self.valid_search = True
+            # return
+        # if invalid
+            # print to user that search was bad
+            # self.get_response()
         return
-        # prompt again if failed
-    # alter data to be printed
-    # combine methods similar to in SearchType; keep method name same as RouteSearch for re-usability
-        # send object to SearchAgain
+
+    def handle_response(self):  # alter data to be returned to user
+        return
 
 
+# TODO: depending on api can also see if handle_response() and validate_response() are also inheritable
 class RouteSearch(ResponseHandler):
     def __init__(self):
         super().__init__()
@@ -109,11 +118,16 @@ class RouteSearch(ResponseHandler):
         self.filter_by_encounter = ''
 
     def validate_response(self):
+        # check api if valid response
+            # self.valid_search = True
+            # Return
+        # if invalid
+            # print to user that search was bad
+            # self.get_response()
         return
-        # prompt again if failed
-    # alter data to be printed
-    # combine methods similar to in SearchType; keep method name same as RouteSearch for re-usability
-        # send object to SearchAgain
+
+    def handle_response(self):  # alter data to be returned to user
+        return
 
 
 class SearchAgain(ResponseHandler):
@@ -124,24 +138,20 @@ class SearchAgain(ResponseHandler):
         self.help_text = "\n Valid responses are: yes, no, and change mode"
         self.input_search = input_search
 
-    def handle_response(self): # Replace logic with structural pattern matching when python 3.10 is adapted for modules
+    # TODO: Replace logic with structural pattern matching when python 3.10 is more widely adapted
+    def handle_response(self):
         """Returns the same or opposite search type depending on user input."""
-        print(self.input_search)  # TODO REMOVE after debug
+
         if self.response == 'no':
             exit()
-        elif self.response == 'yes' and self.input_search == 'RouteSearch': # TODO: add self.call_all_route_search_methods
-            return  # Change self object to new object
-        elif self.response == 'yes' and self.input_search == 'PokemonSearch': # TODO: add self.call_all_pokemon_search_methods
-            return  # Change self object to new object
+        elif self.response == 'yes' and self.input_search == 'RouteSearch':
+            return RouteSearch()
+        elif self.response == 'yes' and self.input_search == 'PokemonSearch':
+            return PokemonSearch()
         elif self.response == 'change mode':
             if self.input_search == 'RouteSearch':
-                return  # Change self object to new object
+                return PokemonSearch()
             elif self.input_search == 'PokemonSearch':
-                return  # Change self object to new object
+                return RouteSearch()
             else:
                 raise Exception('Unexpected value for input_search.')
-
-    def search_again(self):
-        self.get_response()
-        self.validate_response()
-        self.handle_response()
