@@ -10,13 +10,17 @@ Pokemon search allows you to search for the pokemon within a particular route.
 
     # Handles getting the type of search
     search = SearchType()
-    search = search.search_type()
+    search = search.process_query()
 
-    # Handles the api call and data manipulation of search
+    # Loops through search type -> search again until user quits
+    while True:
 
-    # Allows searching again
-    search = SearchAgain(type(search).__name__)  # type(search).__name__ returns current class name of search
-    search.search_again()
+        # Handles the api call and data manipulation of search
+        search.process_query()
+
+        # Allows searching again
+        search = SearchAgain(type(search).__name__)
+        search = search.process_query()
 
 
 if __name__ == '__main__':
