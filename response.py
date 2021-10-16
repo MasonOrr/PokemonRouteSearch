@@ -10,7 +10,6 @@ class ResponseHandler:
         self.valid_search = False
         self.help_text = ''
         self.context = ''
-        return
 
     def get_response(self):
         """User input prompt based on input_prompt attr and responds to help. lower() to sanitize input"""
@@ -115,7 +114,7 @@ class RouteSearch(ResponseHandler):
                         Quit exits the program
                     '''
         self.input_prompt = "Please enter a Route name, filter, clear filter, or quit"
-        self.filter_by_encounter = ''
+        self.filter_by_encounter_method = ''
 
     def validate_response(self):
         # check api if valid response
