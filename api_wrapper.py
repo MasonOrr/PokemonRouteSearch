@@ -1,4 +1,4 @@
-import requests, json
+import requests
 
 # Using PokeAPI
 
@@ -39,19 +39,67 @@ class LocationNotFoundError(Error):
 
 
 class PokemonLocation:
-    def __init__(self, location_area=None, max_chance=None, min_level=None, max_level=None,
-                 condition_values=None, chance=None, encounter_method=None, version=None):
+    """Pokemon Location object for creating an instance of a location with a list of version differences"""
+
+    def __init__(self, location_area=None, version_details=None):
         self.location_area = location_area
+        self.version_details = [LocationVersionDetails(
+            version=version['version']['name'],
+            max_chance=version['max_chance'],
+            encounter_details=version['encounter_details'])
+            for version in version_details]
+
+    def __repr__(self):
+        repr_str = \
+            f'''Location Name: {self.location_area}
+-Version Details: 
+--{self.version_details}
+'''
+        return repr_str
+
+
+class LocationVersionDetails:
+    """For creating an instance of game version differences with a list of individual encounter details"""
+    def __init__(self, version=None, max_chance=None, encounter_details=None):
+        self.version = version
         self.max_chance = max_chance
+        self.encounter_details = [EncounterDetails(
+            min_level=encounter['min_level'],
+            max_level=encounter['max_level'],
+            condition_values=[condition['name']  # if statement is for when the list is empty
+                              for condition in encounter['condition_values'] if encounter['condition_values']],
+            chance=encounter['chance'],
+            encounter_method=encounter['method']['name'])
+            for encounter in encounter_details]
+
+    def __repr__(self):
+        repr_str = \
+            f'''--Version Name: {self.version}
+--Max encounter chance: {self.max_chance}
+---Encounter Details: 
+----{self.encounter_details}
+'''
+        return repr_str
+
+
+class EncounterDetails:
+    """For creating an instance of different encounters"""
+    def __init__(self, min_level=None, max_level=None, condition_values=None, chance=None, encounter_method=None):
         self.min_level = min_level
         self.max_level = max_level
         self.condition_values = condition_values
         self.chance = chance
         self.encounter_method = encounter_method
-        self.version = version
 
-    def __str__(self):
-        return f'Location: {self.location_area}'
+    def __repr__(self):
+        repr_str = \
+            f'''Minimum level: {self.min_level}
+----Maximum level: {self.max_level}
+----Chance: {self.chance}
+----Encounter Method: {self.encounter_method}
+----Required Conditions: {self.condition_values}
+'''
+        return repr_str
 
 
 class PokemonLocationSearch:
@@ -71,7 +119,10 @@ class PokemonLocationSearch:
 
         if self.request.content == b'NotFound':
             raise PokemonNotFoundError("Pokemon was not found in api query")
+        return
 
-    def decode_json(self, request):
-        self.location_list = [PokemonLocation(location_area=location['location_area']['name']) for location in
-                              self.request.json()]
+    def decode_json(self):
+        self.location_list = [PokemonLocation(
+            location_area=location['location_area']['name'],
+            version_details=location['version_details'], )
+            for location in self.request.json()]
