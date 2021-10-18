@@ -24,8 +24,9 @@ class Error(Exception):
     pass
 
 
-class PokemonNameIdAreNoneError(Exception):
-    """Raised when name and id are both equal to None"""
+class PokemonNameIdAreNoneError(Error):
+    """Raised when PokemonLocationSearch.name and PokemonLocationSearch.id are both equal to None"""
+    pass
 
 
 class PokemonNotFoundError(Error):
@@ -33,11 +34,16 @@ class PokemonNotFoundError(Error):
     pass
 
 
+class LocationRegionOrLocationAreNoneError(Error):
+    """Raised when LocationPokemonSearch """
+
+
 class LocationNotFoundError(Error):
     """Raised when api query did not find a location matching the search"""
     pass
 
 
+# Classes related to creating objects from PokemonSearch API query data
 class PokemonLocation:
     """Pokemon Location object for creating an instance of a location with a list of version differences"""
 
@@ -51,10 +57,7 @@ class PokemonLocation:
 
     def __repr__(self):
         repr_str = \
-            f'''Location Name: {self.location_area}
--Version Details: 
---{self.version_details}
-'''
+            f'''Location Name: {self.location_area}'''
         return repr_str
 
 
@@ -74,10 +77,8 @@ class LocationVersionDetails:
 
     def __repr__(self):
         repr_str = \
-            f'''--Version Name: {self.version}
---Max encounter chance: {self.max_chance}
----Encounter Details: 
-----{self.encounter_details}
+            f'''Version Name: {self.version}
+Max encounter chance: {self.max_chance}
 '''
         return repr_str
 
@@ -94,10 +95,10 @@ class EncounterDetails:
     def __repr__(self):
         repr_str = \
             f'''Minimum level: {self.min_level}
-----Maximum level: {self.max_level}
-----Chance: {self.chance}
-----Encounter Method: {self.encounter_method}
-----Required Conditions: {self.condition_values}
+Maximum level: {self.max_level}
+Chance: {self.chance}
+Encounter Method: {self.encounter_method}
+Required Conditions: {self.condition_values}
 '''
         return repr_str
 
@@ -107,6 +108,7 @@ class PokemonLocationSearch:
         self.pokemon_id = pokemon_id
         self.pokemon_name = pokemon_name
         self.search_filters = search_filters
+
         self.location_list = []
         self.request = None
 
@@ -118,7 +120,7 @@ class PokemonLocationSearch:
             f'https://pokeapi.co/api/v2/pokemon/{self.pokemon_id or self.pokemon_name}/encounters')
 
         if self.request.content == b'NotFound':
-            raise PokemonNotFoundError("Pokemon was not found in api query")
+            raise PokemonNotFoundError("Pokemon was not found in PokemonLocationSearch.api_query()")
         return
 
     def decode_json(self):
@@ -126,3 +128,33 @@ class PokemonLocationSearch:
             location_area=location['location_area']['name'],
             version_details=location['version_details'], )
             for location in self.request.json()]
+
+
+class LocationPokemonSearch:
+    def __init__(self, region=None, location=None, search_filters=None):
+        self.region = region
+        self.location = location
+        self.search_filters = search_filters
+
+        self.area_list = []
+        self.request = None
+
+    def query_api(self):
+        if self.region is None or self.location is None:
+            raise LocationRegionOrLocationAreNoneError("LocationPokemonSearch needs both a region and a location")
+
+        self.request = requests.get(f'https://pokeapi.co/api/v2/location/{self.location}/')
+
+        # Some locations need the region in the URL too
+        if self.request.content == b'NotFound':
+            self.request = requests.get(f'https://pokeapi.co/api/v2/location/{self.region}-{self.location}/')
+
+        # Some sea routes also need sea in the URL also
+        if self.request.content == b'NotFound':
+            self.request = requests.get(f'https://pokeapi.co/api/v2/location/{self.region}-sea-{self.location}/')
+
+        if self.request.content == b'NotFound':
+            raise LocationNotFoundError("Location was not found in LocationPokemonSearch.query_api()")
+
+    def decode_json(self):
+        self.area_list = [areas['name'] for areas in self.request.json()['areas']]
