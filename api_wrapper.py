@@ -108,6 +108,7 @@ Required Conditions: {self.condition_values}
 
 
 class PokemonLocationSearch:
+    """Object for handling input name/id and creating request and downstream location/version/encounter objects."""
     def __init__(self, pokemon_id=None, pokemon_name=None, search_filters=None):
         self.pokemon_id = pokemon_id
         self.pokemon_name = pokemon_name
@@ -116,7 +117,7 @@ class PokemonLocationSearch:
         self.location_list = []
         self.request = None
 
-    def query_api(self):
+    def query_api(self):  # TODO: endpoint without value or id returns paginated list of available resources not error
         if self.pokemon_id is None and self.pokemon_name is None:
             raise PokemonNameIdAreNoneError('Pokemon id and name are equal to none.')
 
@@ -135,6 +136,7 @@ class PokemonLocationSearch:
 
 
 class LocationAreaEncounters:
+    """Object for handling encounters within a location and their encounter methods."""
     def __init__(self, area=None):
         self.area = area
 
@@ -160,6 +162,7 @@ encounter_methods: {self.encounter_methods}'''
 
 
 class LocationPokemonSearch:
+    """Object for handling input location and creation of request and downstream location/location area objects """
     def __init__(self, region=None, location=None, search_filters=None):
         self.region = region
         self.location = location
@@ -168,7 +171,7 @@ class LocationPokemonSearch:
         self.area_list = []
         self.request = None
 
-    def query_api(self):
+    def query_api(self):  # TODO: endpoint without value or id returns paginated list of available resources not error
         if self.region is None or self.location is None:
             raise LocationRegionOrLocationAreNoneError("LocationPokemonSearch needs both a region and a location")
 
