@@ -39,8 +39,12 @@ class LocationRegionOrLocationAreNoneError(Error):
 
 
 class LocationNotFoundError(Error):
-    """Raised when api query did not find a location matching the search"""
+    """Raised when API query did not find a location matching the search"""
     pass
+
+
+class LocationAreaNotFoundError(Error):
+    """Raised when API query did not find a location area matching the search"""
 
 
 # Classes related to creating objects from PokemonSearch API query data
@@ -128,6 +132,31 @@ class PokemonLocationSearch:
             location_area=location['location_area']['name'],
             version_details=location['version_details'], )
             for location in self.request.json()]
+
+
+class LocationAreaEncounters:
+    def __init__(self, area=None):
+        self.area = area
+
+        self.pokemon_encounters = []
+        self.encounter_methods = None
+        self.request = None
+
+    def get_encounters(self):
+        self.request = requests.get(f'https://pokeapi.co/api/v2/location-area/{self.area}/')
+
+        if self.request.content == b'NotFound':
+            raise LocationAreaNotFoundError(f"The search for the location area: {self.area} returned no results.")
+
+    def decode_json(self):
+        self.pokemon_encounters = \
+            [encounter['pokemon']['name'] for encounter in self.request.json()['pokemon_encounters']]
+        self.encounter_methods = \
+            [method['encounter_method']['name'] for method in self.request.json()['encounter_method_rates']]
+
+    def __repr__(self):
+        repr_str = f'''Pokemon Encounters: {self.pokemon_encounters}
+encounter_methods: {self.encounter_methods}'''
 
 
 class LocationPokemonSearch:
