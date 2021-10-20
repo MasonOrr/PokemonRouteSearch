@@ -127,4 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-/temp_file.py
+
+/PokeAPI_wrapper/endpoints_raw.json
