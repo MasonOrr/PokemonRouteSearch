@@ -19,7 +19,7 @@ class RegionIsNoneError(Error):
 
 # region ApiWrapper and subclasses for handling api query to PokeAPI
 class ApiWrapper:
-    # TODO: docstring
+    """Main class for handling api queries and the creation of objects from those queries."""
     def __init__(self, endpoint, search_id, region=None, search_filters=None):
         self.endpoint = endpoint
         self.search_id = search_id

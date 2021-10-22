@@ -155,8 +155,39 @@ class TestLocationPokemonSearch:
              'marowak', 'lickitung', 'rhyhorn', 'rhydon', 'chansey', 'seadra', 'goldeen', 'seaking', 'magikarp',
              'gyarados', 'ditto', 'mewtwo', 'wobbuffet', 'makuhita', 'absol', 'chingling', 'bronzor']]
 
+        case_area_details = [
+            {
+                'name': 'cerulean-cave-1f',
+                'file': 'cerulean_cave_1f_search.json',
+                'url': 'https://pokeapi.co/api/v2/location-area/cerulean-cave-1f'
+            },
+            {
+                'name': 'cerulean-cave-2f',
+                'file': 'cerulean_cave_2f_search.json',
+                'url': 'https://pokeapi.co/api/v2/location-area/cerulean-cave-2f'
+            },
+            {
+                'name': 'cerulean-cave-b1f',
+                'file': 'cerulean_cave_b1f_search.json',
+                'url': 'https://pokeapi.co/api/v2/location-area/cerulean-cave-b1f'
+            }
+        ]
+
         case = LocationPokemonSearch('147')
-        case.create_query_url()
+
+        # for testing if data changes or server is down
+        for i, location_area in enumerate(case.area_names):
+            with open(case_area_details[i]['file'], "r") as mock_data:
+                with requests_mock.Mocker() as mock_request:
+                    mock_request.get(case_area_details[i]['url'], json=json.load(mock_data))
+                    case.area_encounters.append(mock_request)
+
+        case.decode_json()
+        for item in case.area_encounters:
+            assert isinstance(item, LocationAreaEncounters)
+            assert item.pokemon_encounters in case_pokemon
+
+        # for testing if server is up
         case.query_api()
         case.decode_json()
 
