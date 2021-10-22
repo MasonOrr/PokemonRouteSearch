@@ -2,19 +2,6 @@ import requests, json
 from .response_models import PokemonLocation, LocationAreaEncounters
 
 
-endpoints = {
-  "encounter-condition": "https://pokeapi.co/api/v2/encounter-condition/{self.search_id}/",
-  "encounter-condition-value": "https://pokeapi.co/api/v2/encounter-condition-value/{self.search_id}/",
-  "encounter-method": "https://pokeapi.co/api/v2/encounter-method/{self.search_id}/",
-  "generation": "https://pokeapi.co/api/v2/generation/{self.search_id}/",
-  "location": "https://pokeapi.co/api/v2/location/{self.search_id}/",
-  "location-area": "https://pokeapi.co/api/v2/location-area/{self.search_id}/",
-  "pokemon": "https://pokeapi.co/api/v2/pokemon/{self.search_id}/encounters/",
-  "region": "https://pokeapi.co/api/v2/region/{self.search_id}/",
-  "version": "https://pokeapi.co/api/v2/version/{self.search_id}/"
-}
-
-
 # region Creating custom errors for to ease debugging
 class Error(Exception):
     """Base class for other exceptions"""
@@ -44,6 +31,19 @@ class ApiWrapper:
         self.response_list = []
 
     def create_query_url(self):
+        endpoints = {
+            "encounter-condition": f"https://pokeapi.co/api/v2/encounter-condition/{self.search_id}/",
+            "encounter-condition-value": f"https://pokeapi.co/api/v2/encounter-condition-value/{self.search_id}/",
+            "encounter-method": f"https://pokeapi.co/api/v2/encounter-method/{self.search_id}/",
+            "generation": f"https://pokeapi.co/api/v2/generation/{self.search_id}/",
+            "location": f"https://pokeapi.co/api/v2/location/{self.search_id}/",
+            "location-area": f"https://pokeapi.co/api/v2/location-area/{self.search_id}/",
+            "pokemon": f"https://pokeapi.co/api/v2/pokemon/{self.search_id}/encounters/",
+            "region": f"https://pokeapi.co/api/v2/region/{self.search_id}/",
+            "version": f"https://pokeapi.co/api/v2/version/{self.search_id}/",
+            "version-group": f"https://pokeapi.co/api/v2/version-group/{self.search_id}/"
+        }
+
         self.query_url = endpoints[self.endpoint]
 
     def query_api(self):  # TODO: endpoint without value or id returns paginated list of available resources not error
@@ -55,9 +55,8 @@ class ApiWrapper:
 
 class PokemonLocationSearch(ApiWrapper):
     """Subclass of ApiWrapper for the LocationSearch query. Creates PokemonLocation objects based on query."""
-    def __init__(self, search_id, **kwargs):
-        super().__init__(search_id, **kwargs)
-        self.endpoint = "pokemon"
+    def __init__(self, search_id, endpoint="pokemon", **kwargs):
+        super().__init__(endpoint, search_id, **kwargs)
 
         self.location_list = []
 
@@ -75,11 +74,11 @@ class LocationPokemonSearch(ApiWrapper):
     a lot of knowledge about the underlying naming conventions and game data. The extra logic in the __init__
     takes the more human usable location as input and creates a list of areas needed for the query.
     """
-    def __init__(self, search_id, **kwargs):
-        super().__init__(search_id, **kwargs)
-        self.endpoint = "location"
+    def __init__(self, search_id, endpoint='location', **kwargs):
+        super().__init__(endpoint, search_id, **kwargs)
 
         # getting list of areas within location
+        self.create_query_url()
         self.request = requests.get(self.query_url)
 
         # Some locations need the region in url
@@ -103,7 +102,7 @@ class LocationPokemonSearch(ApiWrapper):
     # TODO: endpoint without value or id returns paginated list of available resources not error
     def query_api(self):
         self.area_data = \
-            [requests.get(f'https://pokeapi.co/api/v2/location-area/{area}/').json() for area in self.area_names]
+            [requests.get(f'https://pokeapi.co/api/v2/location-area/{area}/') for area in self.area_names]
 
         for query in self.area_data:
             if query.status_code == 404:
@@ -111,8 +110,8 @@ class LocationPokemonSearch(ApiWrapper):
 
     def decode_json(self):
         self.area_encounters = [LocationAreaEncounters(
-            area=area['name'],
-            pokemon_encounters=[encounter['pokemon']['name'] for encounter in area['pokemon_encounters']],
-            encounter_methods=[method['encounter_method']['name'] for method in area['encounter_method_rates']]
+            area=area.json()['name'],
+            pokemon_encounters=[encounter['pokemon']['name'] for encounter in area.json()['pokemon_encounters']],
+            encounter_methods=[method['encounter_method']['name'] for method in area.json()['encounter_method_rates']]
         ) for area in self.area_data]
 # endregion
