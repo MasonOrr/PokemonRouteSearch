@@ -19,6 +19,9 @@ class ResponseHandler:
         if self.response == 'help':
             print(dedent(self.help_text))
             self.get_response()
+        elif self.response == '':
+            print('Please enter a response.')
+            self.get_response()
         elif self.response == 'quit':
             exit()
         else:
