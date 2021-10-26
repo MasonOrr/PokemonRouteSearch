@@ -1,5 +1,6 @@
 from sys import exit
 from textwrap import dedent
+from PokeAPI_wrapper.api_wrapper import *
 
 
 class ResponseHandler:
@@ -70,14 +71,15 @@ class SearchType(ResponseHandler):
         """Returns search type class based on user input. Added exception in case of bad validation"""
 
         if self.response in ['ps', 'pokemon search']:
-            return PokemonSearch()
+            return FindPokemonInLocation()
         elif self.response in ['rs', 'route search']:
-            return RouteSearch()
+            return FindLocationOfPokemon()
         else:
             raise Exception('Unexpected search type in self.response')
 
 
-class PokemonSearch(ResponseHandler):
+class FindLocationOfPokemon(ResponseHandler):
+    """Object for handling user input, API wrapper calls to PokemonLocationSearch, and output formatting. """
     def __init__(self):
         super().__init__()
         self.help_text = '''\
@@ -92,46 +94,89 @@ class PokemonSearch(ResponseHandler):
         self.filter_by_game = ''
         self.filter_by_generation = ''
         self.filter_by_console = ''
+        self.search = None
 
     def validate_response(self):
-        # check api if valid response
-            # self.valid_search = True
-            # return
-        # if invalid
-            # print to user that search was bad
-            # self.get_response()
-        return
+        while True:
+            try:
+                self.response = '-'.join(self.response.split())
+                self.search = PokemonLocationSearch(self.response)
+                self.search.create_query_url()
+                self.search.query_api()
+                self.valid_search = True
+                break
+            except QueryApiStatusCode404Error:
+                print(f'API was unable to find your search of {self.response}')
+                self.get_response()
 
-    def handle_response(self):  # alter data to be returned to user
-        return
+    def handle_response(self):
+        self.search.decode_json()
+        print(f"{self.response} was found in {len(self.search.location_list)} locations")
+
+        for location in self.search.location_list:
+            [print(f"At {location.location_area} in {version.version} via {version.methods}")
+             for version in location.version_details]
 
 
-# TODO: depending on api can also see if handle_response() and validate_response() are also inheritable
-class RouteSearch(ResponseHandler):
+class FindPokemonInLocation(ResponseHandler):
+    """Object for handling user input, API wrapper calls to LocationPokemonSearch, and output formatting. """
     def __init__(self):
         super().__init__()
         self.help_text = '''\
         
                         This is the Route Search Mode.
-                        You can enter a Route and find what pokemon are located in it.
+                        You must enter the Region followed by location name (e.g. Hoenn Route 112).
                         Enter filter if you would like to limit search to a specific encounter type (e.g. fishing).
                         Enter clear filter if you would like to remove a previous filter.
                         Quit exits the program
                     '''
-        self.input_prompt = "Please enter a Route name, filter, clear filter, or quit"
+        self.input_prompt = "Please enter RegionName RouteName, filter, clear filter, or quit"
         self.filter_by_encounter_method = ''
+        self.location = None
+        self.region = None
+        self.search = None
+
+    def get_response(self):
+        """Checks for help,'', quit. Attempts to get region and location and formats location to be passed into url"""
+        self.response = input(f'{self.input_prompt}').lower()
+
+        if self.response == 'help':
+            print(dedent(self.help_text))
+            self.get_response()
+        elif self.response == '':
+            print('Please enter a response.')
+            self.get_response()
+        elif self.response == 'quit':
+            exit()
+        else:
+            pass
+
+        self.region, *self.location = self.response.split()
+        self.location = '-'.join(self.location)
+
+        if not self.location:
+            print("You must enter the Region followed by the location's name (e.g. Johto Sprout Tower")
+            self.get_response()
 
     def validate_response(self):
-        # check api if valid response
-            # self.valid_search = True
-            # Return
-        # if invalid
-            # print to user that search was bad
-            # self.get_response()
-        return
+        """Checks to see if region + location is valid search, returned location areas shouldn't need error checks"""
+        while True:
+            try:
+                self.search = LocationPokemonSearch(self.location, self.region)
+                self.valid_search = True
+                break
+            except QueryApiStatusCode404Error:
+                print(f'API was unable to find your search of Region: {self.region} and Location: {self.location}')
+                self.get_response()
 
-    def handle_response(self):  # alter data to be returned to user
-        return
+    def handle_response(self):
+        self.search.query_api()
+        self.search.decode_json()
+
+        print(f'{self.location} has {len(self.search.area_names)} sub area(s)')
+        for area in self.search.area_encounters:
+            print(f'{area.area} contains these pokemon:')
+            print(', '.join(area.pokemon_encounters))
 
 
 class SearchAgain(ResponseHandler):
@@ -148,14 +193,14 @@ class SearchAgain(ResponseHandler):
 
         if self.response == 'no':
             exit()
-        elif self.response == 'yes' and self.input_search == 'RouteSearch':
-            return RouteSearch()
-        elif self.response == 'yes' and self.input_search == 'PokemonSearch':
-            return PokemonSearch()
+        elif self.response == 'yes' and self.input_search == 'FindLocationOfPokemon':
+            return FindLocationOfPokemon()
+        elif self.response == 'yes' and self.input_search == 'FindPokemonInLocation':
+            return FindPokemonInLocation()
         elif self.response == 'change mode':
-            if self.input_search == 'RouteSearch':
-                return PokemonSearch()
-            elif self.input_search == 'PokemonSearch':
-                return RouteSearch()
+            if self.input_search == 'FindLocationOfPokemon':
+                return FindPokemonInLocation()
+            elif self.input_search == 'FindPokemonInLocation':
+                return FindLocationOfPokemon()
             else:
                 raise Exception('Unexpected value for input_search.')

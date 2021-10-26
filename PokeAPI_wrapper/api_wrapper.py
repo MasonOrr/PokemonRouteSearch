@@ -54,7 +54,7 @@ class ApiWrapper:
 
 
 class PokemonLocationSearch(ApiWrapper):
-    """Subclass of ApiWrapper for the LocationSearch query. Creates PokemonLocation objects based on query."""
+    """Subclass of ApiWrapper for the FindLocationOfPokemon query. Creates PokemonLocation objects based on query."""
     def __init__(self, search_id, endpoint="pokemon", **kwargs):
         super().__init__(endpoint, search_id, **kwargs)
 
@@ -68,14 +68,14 @@ class PokemonLocationSearch(ApiWrapper):
 
 
 class LocationPokemonSearch(ApiWrapper):
-    """Subclass of ApiWrapper for the PokemonSearch query. Creates LocationAreaObjects objects based on query.
+    """Subclass of ApiWrapper for the FindPokemonInLocation query. Creates LocationArea objects based on query.
 
     This programs current terminal based design makes searching by location areas from user input too difficult
     a lot of knowledge about the underlying naming conventions and game data. The extra logic in the __init__
     takes the more human usable location as input and creates a list of areas needed for the query.
     """
-    def __init__(self, search_id, endpoint='location', **kwargs):
-        super().__init__(endpoint, search_id, **kwargs)
+    def __init__(self, search_id, region, endpoint='location', **kwargs):
+        super().__init__(endpoint, search_id, region=region, **kwargs)
 
         # getting list of areas within location
         self.create_query_url()
