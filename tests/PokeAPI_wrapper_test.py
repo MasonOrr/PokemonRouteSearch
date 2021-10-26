@@ -1,7 +1,7 @@
 import pytest
 import requests_mock
 
-from ..PokeAPI_wrapper.api_wrapper import *
+from PokeAPI_wrapper.api_wrapper import *
 
 
 class TestApiWrapper:
@@ -117,8 +117,8 @@ class TestPokemonLocationSearch:
 class TestLocationPokemonSearch:
 
     def test_init(self):
-        case_1 = LocationPokemonSearch('route-40', region='johto')
-        case_2 = LocationPokemonSearch('77')
+        case_1 = LocationPokemonSearch('route-40', 'johto')
+        case_2 = LocationPokemonSearch('77', 'johto')
 
         assert case_1.endpoint == 'location'
         assert case_1.region == 'johto'
@@ -129,8 +129,8 @@ class TestLocationPokemonSearch:
         assert case_2.search_id == '77'
 
     def test_query_api(self):
-        case_1 = LocationPokemonSearch('route-40', region='johto')
-        case_2 = LocationPokemonSearch('77')
+        case_1 = LocationPokemonSearch('route-40', 'johto')
+        case_2 = LocationPokemonSearch('77', 'johto')
 
         case_1.query_api()
         case_2.query_api()
@@ -173,7 +173,7 @@ class TestLocationPokemonSearch:
             }
         ]
 
-        case = LocationPokemonSearch('147')
+        case = LocationPokemonSearch('147', 'kanto')
 
         # for testing if data changes or server is down
         for i, location_area in enumerate(case.area_names):

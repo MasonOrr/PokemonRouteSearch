@@ -1,4 +1,4 @@
-from PokemonRouteSearch.response import SearchType, SearchAgain
+from PokemonRouteSearch.response_handler import SearchType, SearchAgain
 
 
 def main():

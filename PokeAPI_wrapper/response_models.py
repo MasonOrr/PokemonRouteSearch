@@ -41,6 +41,8 @@ class PokemonLocationVersionDetails:
             encounter_method=encounter['method']['name'])
             for encounter in encounter_details]
 
+        self.methods = list(set([encounter.encounter_method for encounter in self.encounter_details]))
+
     def __repr__(self):
         repr_str = \
             f'''Version Name: {self.version}
