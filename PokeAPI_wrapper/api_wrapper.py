@@ -46,7 +46,7 @@ class ApiWrapper:
 
         self.query_url = endpoints[self.endpoint]
 
-    def query_api(self):  # TODO: endpoint without value or id returns paginated list of available resources not error
+    def query_api(self):
         self.request = requests.get(self.query_url)
 
         if self.request.status_code == 404:
@@ -99,7 +99,6 @@ class LocationPokemonSearch(ApiWrapper):
         self.area_data = []
         self.area_encounters = []
 
-    # TODO: endpoint without value or id returns paginated list of available resources not error
     def query_api(self):
         self.area_data = \
             [requests.get(f'https://pokeapi.co/api/v2/location-area/{area}/') for area in self.area_names]

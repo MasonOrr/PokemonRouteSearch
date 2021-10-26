@@ -12,7 +12,9 @@ class ResponseHandler:
         self.context = ''
 
     def get_response(self):
-        """User input prompt based on input_prompt attr and responds to help. lower() to sanitize input"""
+        """User input prompt based on input_prompt attr and responds to help. lower() to sanitize input.
+        Empty string has to be checked or else API will return 200 and break the logic.
+        """
 
         self.response = input(f'{self.input_prompt}').lower()
 

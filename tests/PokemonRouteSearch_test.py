@@ -24,23 +24,45 @@ class TestResponseHandler:
 
 
 class TestSearchType:
-    def test_init(self):
-        pass
-
     def test_validate_response(self):
-        pass
+        case_1 = SearchType()
+        case_2 = SearchType()
+
+        case_1.response = 'rs'
+        case_2.response = 'berry search'
+
+        case_1.validate_response()
+
+        def ignore_confirmed(arg): #
+            return
+        ignore_get_response = MonkeyPatch()
+        ignore_get_response.setattr(SearchType, "get_response", ignore_confirmed)
+
+        assert case_1.valid_search
+        assert not case_2.valid_search
 
     def test_handle_response(self):
-        pass
+        case_1 = SearchType()
+        case_2 = SearchType()
+        case_3 = SearchType()
+
+        case_1.response = 'rs'
+        case_2.response = 'ps'
+        case_3.response = 'How did I get here?'
+
+        case_1_return = case_1.handle_response()
+        case_2_return = case_2.handle_response()
+
+        assert isinstance(case_1_return, RouteSearch)
+        assert isinstance(case_2_return, PokemonSearch)
+        with pytest.raises(Exception):
+            assert case_3.handle_response()
 
     def test_process_query(self):
         pass
 
 
 class TestPokemonSearch:
-    def test_init(self):
-        pass
-
     def test_validate_response(self):
         pass
 
@@ -52,9 +74,6 @@ class TestPokemonSearch:
 
 
 class TestRouteSearch:
-    def test_init(self):
-        pass
-
     def test_validate_response(self):
         pass
 
@@ -66,9 +85,6 @@ class TestRouteSearch:
 
 
 class TestSearchAgain:
-    def test_init(self):
-        pass
-
     def test_validate_response(self):
         pass
 
